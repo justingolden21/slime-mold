@@ -1,0 +1,20 @@
+{
+  "name": "slime-mold",
+  "version": "1.0.0",
+  "description": "generative patterns inspired by Sebastian Lague",
+  "scripts": {
+    "dev": "postcss src/styles.css -o docs/css/styles.css --watch --verbose",
+    "build": "cross-env NODE_ENV=production postcss src/styles.css -o docs/css/styles.css && cleancss -o docs/css/styles.css docs/css/styles.css"
+  },
+  "keywords": [],
+  "author": "Justin Golden",
+  "license": "MIT",
+  "devDependencies": {
+    "autoprefixer": "^10.1.0",
+    "clean-css-cli": "^4.3.0",
+    "cross-env": "^7.0.3",
+    "postcss-cli": "^8.3.1",
+    "postcss-import": "^14.0.0",
+    "tailwindcss": "^2.0.2"
+  }
+}
