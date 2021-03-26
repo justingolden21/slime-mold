@@ -22,6 +22,12 @@
 	p {
 		@apply leading-relaxed;
 	}
+	button {
+    	@apply cursor-pointer p-2 mx-1 rounded bg-gray-500 text-white hover:bg-gray-700;
+	}
+	button svg {
+		display: inline;
+	}
 }
 
 @layer components {

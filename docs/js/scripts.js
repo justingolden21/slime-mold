@@ -11,6 +11,7 @@ BLUR_AVERAGE = false;
 let tick_interval;
 let slimes = [];
 let canvas, ctx;
+let paused = false;
 
 window.onload = ()=> {
 	canvas = document.getElementById('canvas');
@@ -19,11 +20,46 @@ window.onload = ()=> {
 	canvas.width = WIDTH;
 	canvas.height = HEIGHT;
 
+	ctx.fillStyle = 'white';
+	ctx.fillRect(0, 0, canvas.width, canvas.height);
+
 	for(let i=0; i<NUM_SLIME; i++) {
 		slimes.push(getSlime());
 	}
 
 	tick_interval = setInterval(tick, TICK_SPEED);
+
+	// UI stuff
+	u('#copy-btn').first().onclick = ()=> {
+		// https://stackoverflow.com/a/57546936/4907950
+		canvas.toBlob(blob=> {
+			const item = new ClipboardItem({'image/png': blob});
+			navigator.clipboard.write([item]); 
+		});
+	};
+	u('#download-btn').first().onclick = ()=> {
+		// https://stackoverflow.com/a/50300880/4907950
+		let link = document.createElement('a');
+		link.download = 'slime_canvas.png';
+		link.href = document.getElementById('canvas').toDataURL();
+		link.click();
+		link.remove();
+	};
+
+	// https://heroicons.dev/
+	const pause = '<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 9v6m4-6v6m7-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>';
+	const play = '<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>';
+	u('#pause-btn').first().onclick = ()=> {
+
+		paused = !paused;
+		u('#pause-btn').html(paused ? play : pause);
+		if(paused) {
+			clearInterval(tick_interval);
+		} else {
+			tick_interval = setInterval(tick, TICK_SPEED);
+		}
+	};
+	u('#pause-btn').html(pause);
 };
 
 function tick() {
