@@ -5,15 +5,14 @@ TICK_SPEED = 25,
 BLUR_FACTOR = 0.98,
 SENSOR_ANGLE = Math.PI/4
 RANDOM_STEER_STRENGTH = 0.25,
-TURN_SPEED = Math.PI/25;
-
+TURN_SPEED = Math.PI/25
+BLUR_AVERAGE = false;
 
 let tick_interval;
 let slimes = [];
 let canvas, ctx;
 
 window.onload = ()=> {
-
 	canvas = document.getElementById('canvas');
 	ctx = canvas.getContext('2d');
 
@@ -64,17 +63,19 @@ function tick() {
 		imgData.data[i+3] *= BLUR_FACTOR;
 
 		// average alpha values with the alpha values of adjacent pixels
-		// if(i > WIDTH*4 + 4 && i < WIDTH*HEIGHT*4 - WIDTH*4 - 4) {
-		// 	// +- 4 for left and right pixels
-		// 	let avg = imgData.data[i+3] +
-		// 	imgData.data[i+3 + 4] +
-		// 	imgData.data[i+3 - 4] +
-		// 	imgData.data[i+3 + WIDTH*4] +
-		// 	imgData.data[i+3 - WIDTH*4];
-		// 	avg /= 5;
+		if(BLUR_AVERAGE) {
+			if(i > WIDTH*4 + 4 && i < WIDTH*HEIGHT*4 - WIDTH*4 - 4) {
+				// +- 4 for left and right pixels
+				let avg = imgData.data[i+3] +
+				imgData.data[i+3 + 4] +
+				imgData.data[i+3 - 4] +
+				imgData.data[i+3 + WIDTH*4] +
+				imgData.data[i+3 - WIDTH*4];
+				avg /= 5;
 
-		// 	imgData.data[i+3] = avg;
-		// }
+				imgData.data[i+3] = avg;
+			}
+		}
 	}
 	ctx.putImageData(imgData, 0, 0);
 
@@ -100,10 +101,6 @@ function tick() {
 		else if(weightLeft > weightRight) {
 			slime.angle += steer_strength * TURN_SPEED; // turn left
 		}
-		// else {
-		// 	console.log('interesting');
-		// 	console.log(weightForward, weightLeft, weightRight);
-		// }
 	}
 
 	console.timeEnd('tick');
@@ -113,7 +110,5 @@ function tick() {
 function getPixelAt(x, y, imgData) {
 	x = Math.floor(x);
 	y = Math.floor(y);
-	// feels suboptimal to call this a bajillion times a tick...
-	// let imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
 	return imgData.data[x*4 + y*WIDTH*4 + 3];
 }
