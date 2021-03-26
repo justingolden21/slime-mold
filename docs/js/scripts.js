@@ -58,9 +58,10 @@ function tick() {
 	// pixel manipulation
 	// https://stackoverflow.com/a/17717174/4907950
 	let imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+	let newImgData = new Uint8ClampedArray(imgData.data);
 	for(let i=0; i<imgData.data.length; i+=4) {
 		// multiply each pixel's alpha by the blur factor
-		imgData.data[i+3] *= BLUR_FACTOR;
+		newImgData[i+3] *= BLUR_FACTOR;
 
 		// average alpha values with the alpha values of adjacent pixels
 		if(BLUR_AVERAGE) {
@@ -73,10 +74,12 @@ function tick() {
 				imgData.data[i+3 - WIDTH*4];
 				avg /= 5;
 
-				imgData.data[i+3] = avg;
+				newImgData[i+3] = avg;
 			}
 		}
 	}
+
+	imgData.data.set(newImgData);
 	ctx.putImageData(imgData, 0, 0);
 
 	console.timeLog('tick');
