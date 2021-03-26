@@ -25,6 +25,9 @@
 }
 
 @layer components {
+	#canvas {
+		@apply border-2 border-gray-500 mx-auto m-4;
+	}
 
 }
 
