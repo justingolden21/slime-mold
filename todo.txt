@@ -1,0 +1,4 @@
+pause and fullscreen buttons
+add range inputs for user to modify consts
+add color input (maybe background color input)
+link to repo, my site, contact/email me, and Sebastian vid (https://youtu.be/X-iSQQgOd1A)
