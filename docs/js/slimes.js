@@ -1,4 +1,4 @@
-const SLIME_SIZE = 2, SLIME_SPEED = 3;
+const SLIME_SIZE = 3, SLIME_SPEED = 3;
 
 class Slime {
 	constructor(x, y, angle) {

@@ -1,4 +1,4 @@
-const WIDTH = 500, HEIGHT = 500, NUM_SLIME = 100;
+const WIDTH = 500, HEIGHT = 500, NUM_SLIME = 100, BLUR_FACTOR = 0.98;
 
 let tick_interval;
 let slimes = [];
@@ -20,6 +20,8 @@ window.onload = ()=> {
 };
 
 function tick() {
+	ctx.globalAlpha = 0.75;
+
 	for(let slime of slimes) {
 		// move
 		slime.x += Math.cos(slime.angle)*SLIME_SPEED;
@@ -41,7 +43,16 @@ function tick() {
 			slime.angle = Math.random()*2*Math.PI;
 		}
 
-
 		drawSlime(slime); // draw
 	}
+
+
+	// blur
+	let imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+	for(let i=0; i<imgData.data.length; i+=4) {
+		// https://stackoverflow.com/a/17717174/4907950
+		imgData.data[i+3] *= BLUR_FACTOR; // alpha
+	}
+	ctx.putImageData(imgData, 0, 0);
+
 }
