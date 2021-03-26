@@ -1,4 +1,12 @@
-const WIDTH = 500, HEIGHT = 500, NUM_SLIME = 100, BLUR_FACTOR = 0.98;
+const WIDTH = 500,
+HEIGHT = 500,
+NUM_SLIME = 200,
+TICK_SPEED = 25,
+BLUR_FACTOR = 0.98,
+SENSOR_ANGLE = Math.PI/4
+RANDOM_STEER_STRENGTH = 0.25,
+TURN_SPEED = Math.PI/25;
+
 
 let tick_interval;
 let slimes = [];
@@ -16,10 +24,11 @@ window.onload = ()=> {
 		slimes.push(getSlime());
 	}
 
-	tick_interval = setInterval(tick, 50);
+	tick_interval = setInterval(tick, TICK_SPEED);
 };
 
 function tick() {
+	console.time('tick');
 	ctx.globalAlpha = 0.75;
 
 	for(let slime of slimes) {
@@ -27,6 +36,7 @@ function tick() {
 		slime.x += Math.cos(slime.angle)*SLIME_SPEED;
 		slime.y += Math.sin(slime.angle)*SLIME_SPEED;
 
+		// check bounds
 		if(slime.x > WIDTH) {
 			slime.x = WIDTH;
 			slime.angle = Math.random()*2*Math.PI;
@@ -46,13 +56,64 @@ function tick() {
 		drawSlime(slime); // draw
 	}
 
-
-	// blur
+	// pixel manipulation
+	// https://stackoverflow.com/a/17717174/4907950
 	let imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
 	for(let i=0; i<imgData.data.length; i+=4) {
-		// https://stackoverflow.com/a/17717174/4907950
-		imgData.data[i+3] *= BLUR_FACTOR; // alpha
+		// multiply each pixel's alpha by the blur factor
+		imgData.data[i+3] *= BLUR_FACTOR;
+
+		// average alpha values with the alpha values of adjacent pixels
+		// if(i > WIDTH*4 + 4 && i < WIDTH*HEIGHT*4 - WIDTH*4 - 4) {
+		// 	// +- 4 for left and right pixels
+		// 	let avg = imgData.data[i+3] +
+		// 	imgData.data[i+3 + 4] +
+		// 	imgData.data[i+3 - 4] +
+		// 	imgData.data[i+3 + WIDTH*4] +
+		// 	imgData.data[i+3 - WIDTH*4];
+		// 	avg /= 5;
+
+		// 	imgData.data[i+3] = avg;
+		// }
 	}
 	ctx.putImageData(imgData, 0, 0);
 
+	console.timeLog('tick');
+
+	// turn slimes towards trails based on sensory data
+	for(let slime of slimes) {
+		let weightForward = sense(slime, 0, imgData);
+		let weightLeft = sense(slime, SENSOR_ANGLE, imgData);
+		let weightRight = sense(slime, -SENSOR_ANGLE, imgData);
+		let steer_strength = Math.random()*RANDOM_STEER_STRENGTH + RANDOM_STEER_STRENGTH;
+
+		// RANDOM_STEER_STRENGTH
+		if(weightForward > weightLeft && weightForward > weightRight) {
+			continue; // continue same direction
+		}
+		else if (weightForward < weightLeft && weightForward < weightRight) {
+			slime.angle += (steer_strength - 3/2*RANDOM_STEER_STRENGTH) * TURN_SPEED // turn randomly
+		}
+		else if(weightRight > weightLeft) {
+			slime.angle -= steer_strength * TURN_SPEED; // turn right
+		}
+		else if(weightLeft > weightRight) {
+			slime.angle += steer_strength * TURN_SPEED; // turn left
+		}
+		// else {
+		// 	console.log('interesting');
+		// 	console.log(weightForward, weightLeft, weightRight);
+		// }
+	}
+
+	console.timeEnd('tick');
+}
+
+// return alpha of pixel at x, y
+function getPixelAt(x, y, imgData) {
+	x = Math.floor(x);
+	y = Math.floor(y);
+	// feels suboptimal to call this a bajillion times a tick...
+	// let imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+	return imgData.data[x*4 + y*WIDTH*4 + 3];
 }

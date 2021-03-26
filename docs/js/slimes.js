@@ -1,4 +1,4 @@
-const SLIME_SIZE = 3, SLIME_SPEED = 3;
+const SLIME_SIZE = 2, SLIME_SPEED = 2, SENSOR_SIZE = 5;
 
 class Slime {
 	constructor(x, y, angle) {
@@ -20,4 +20,22 @@ function drawSlime(slime) {
 	ctx.rect(slime.x, slime.y, SLIME_SIZE, SLIME_SIZE);
 	ctx.fillStyle = 'limegreen';
 	ctx.fill();
+}
+
+function sense(slime, offsetAngle, imgData) {
+	let senseAngle = slime.angle + offsetAngle;
+	let sensoryX = slime.x + Math.cos(senseAngle);
+	let sensoryY = slime.y + Math.sin(senseAngle);
+
+	let sum = 0;
+	for(let offsetX = -SENSOR_SIZE; offsetX <= SENSOR_SIZE; offsetX++) {
+		for(let offsetY = -SENSOR_SIZE; offsetY <= SENSOR_SIZE; offsetY++) {
+			let posX = sensoryX + offsetX;
+			let posY = sensoryY + offsetY;
+			if(posX >= 0 && posX < WIDTH && posY >= 0 && posY < HEIGHT) {
+				sum += getPixelAt(posX, posY, imgData);
+			}
+		}
+	}
+	return sum;
 }
