@@ -1,6 +1,11 @@
-const WIDTH = 500,
-HEIGHT = 500,
-NUM_SLIME = 1000,
+const initialValues = {
+	width: 500,
+	height: 500,
+};
+
+let WIDTH, HEIGHT;
+
+const NUM_SLIME = 1000,
 TICK_SPEED = 25,
 BLUR_FACTOR = 0.98,
 SENSOR_ANGLE = Math.PI/4
@@ -9,23 +14,21 @@ TURN_SPEED = Math.PI/25
 BLUR_AVERAGE = false;
 
 let tick_interval;
-let slimes = [];
+let slimes;
 let canvas, ctx;
-let paused = false;
+let paused = false, fullscreen = false;
 
 window.onload = ()=> {
 	canvas = document.getElementById('canvas');
 	ctx = canvas.getContext('2d');
 
+	WIDTH = initialValues.width;
+	HEIGHT = initialValues.height;
+
 	canvas.width = WIDTH;
 	canvas.height = HEIGHT;
 
-	ctx.fillStyle = 'white';
-	ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-	for(let i=0; i<NUM_SLIME; i++) {
-		slimes.push(getSlime());
-	}
+	setup();
 
 	tick_interval = setInterval(tick, TICK_SPEED);
 
@@ -60,10 +63,57 @@ window.onload = ()=> {
 		}
 	};
 	u('#pause-btn').html(pause);
+
+	u('#fullscreen-btn').first().onclick = ()=> {
+		fullscreen = (document.fullscreenElement != null);
+		console.log(fullscreen);
+		fullscreen = !fullscreen;
+		if(fullscreen) {
+			openFullscreen();
+			// wait for doc to enter fullscreen before calculating width etc.
+			document.onfullscreenchange = ()=> {
+				canvas.width = WIDTH = window.innerWidth;
+				canvas.height = HEIGHT = window.innerHeight;
+				canvas.scrollIntoView();
+				setup();
+			};
+		} else {
+			// remove the event handler so it doesn't make the canvas big when leaving fullscreen
+			document.onfullscreenchange = ()=>{};
+
+			closeFullscreen();
+			canvas.width = WIDTH = initialValues.width;
+			canvas.height = HEIGHT = initialValues.height;
+			setup();
+		}
+	};
+
+	// https://developer.mozilla.org/en-US/docs/Web/API/Fullscreen_API
+	// https://www.w3schools.com/howto/howto_js_fullscreen.asp
+	let elm = document.documentElement;
+	function openFullscreen() {
+		if(elm.requestFullscreen) elm.requestFullscreen();
+		else if(elm.webkitRequestFullscreen) elm.webkitRequestFullscreen();
+		else if(elm.msRequestFullscreen) elm.msRequestFullscreen();
+	}
+	function closeFullscreen() {
+		if(document.exitFullscreen) document.exitFullscreen();
+		else if(document.webkitExitFullscreen) document.webkitExitFullscreen();
+		else if(document.msExitFullscreen) document.msExitFullscreen();
+	}
 };
 
+function setup() {
+	ctx.fillStyle = 'white';
+	ctx.fillRect(0, 0, canvas.width, canvas.height);
+	slimes = [];
+	for(let i=0; i<NUM_SLIME; i++) {
+		slimes.push(getSlime());
+	}
+}
+
 function tick() {
-	console.time('tick');
+	// console.time('tick');
 	ctx.globalAlpha = 0.75;
 
 	for(let slime of slimes) {
@@ -119,7 +169,7 @@ function tick() {
 	imgData.data.set(newImgData);
 	ctx.putImageData(imgData, 0, 0);
 
-	console.timeLog('tick');
+	// console.timeLog('tick');
 
 	// turn slimes towards trails based on sensory data
 	for(let slime of slimes) {
@@ -143,7 +193,7 @@ function tick() {
 		}
 	}
 
-	console.timeEnd('tick');
+	// console.timeEnd('tick');
 }
 
 // return alpha of pixel at x, y
