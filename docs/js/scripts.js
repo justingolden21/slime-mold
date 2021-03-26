@@ -58,6 +58,7 @@ function tick() {
 	// pixel manipulation
 	// https://stackoverflow.com/a/17717174/4907950
 	let imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+	// https://stackoverflow.com/a/15238036/4907950
 	let newImgData = new Uint8ClampedArray(imgData.data);
 	for(let i=0; i<imgData.data.length; i+=4) {
 		// multiply each pixel's alpha by the blur factor
