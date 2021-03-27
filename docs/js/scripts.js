@@ -5,7 +5,7 @@ const initialValues = {
 
 let WIDTH, HEIGHT;
 
-const NUM_SLIME = 1000,
+const NUM_SLIME = 1500,
 TICK_SPEED = 25,
 BLUR_FACTOR = 0.98,
 SENSOR_ANGLE = Math.PI/4
