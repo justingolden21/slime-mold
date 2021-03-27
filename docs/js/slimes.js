@@ -16,7 +16,7 @@ function getSlime() {
 	// Math.floor(Math.random()*16777215) // all colors
 	// Math.floor(Math.random()*16777215/2) // blues
 	// Math.floor(Math.random()*16777215/2+16777215/2) /// reds
-	let color = '#' + Math.floor(Math.random()*16777215/2).toString(16); // https://css-tricks.com/snippets/javascript/random-hex-color/
+	let color = Math.floor(Math.random()*16777215/2).toString(16); // https://css-tricks.com/snippets/javascript/random-hex-color/
 	return new Slime(x, y, angle, color);
 }
 
@@ -28,7 +28,7 @@ function angleTo(x1, y1, x2, y2) {
 function drawSlime(slime) {
 	ctx.beginPath();
 	ctx.rect(slime.x, slime.y, SLIME_SIZE, SLIME_SIZE);
-	ctx.fillStyle = slime.color;
+	ctx.fillStyle = '#' + slime.color;
 	ctx.fill();
 }
 
